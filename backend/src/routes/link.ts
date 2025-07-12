@@ -3,7 +3,9 @@ import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
 import { isLinkDead } from '../utils/isLinkDead'
 
-export const linkRoute = new Elysia().get('/l/:id', async ({ params, set, status }) => {
+const elysia = new Elysia();
+
+elysia.get('/link/:id', async ({ params, set, status }) => {
   if (!params.id) return status(400, 'ID_NOT_PROVIDED');
 
   const link = await prisma.link.findUnique({
@@ -16,3 +18,9 @@ export const linkRoute = new Elysia().get('/l/:id', async ({ params, set, status
 
   return link;
 })
+
+elysia.get('/l/*', ({ path, redirect }) => {
+  redirect(path.replace(/^\/l/, '/link/'))
+})
+
+export const linkRoute = elysia;

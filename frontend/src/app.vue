@@ -10,14 +10,12 @@
       <NuxtLink to="/supporters">Supporters</NuxtLink>
     </nav>
   </header>
-  <main>
-    <NuxtPage />
-  </main>
+  <NuxtPage />
 </template>
 
 <style scoped>
 header {
-  width: 100vw;
+  width: 100dvw;
   position: sticky;
   top:  0;
   left: 0;

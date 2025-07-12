@@ -3,7 +3,7 @@ import { prisma } from './prisma'
 import { random, randomstr } from './utils/random'
 import { isLinkDead } from './utils/isLinkDead'
 import { shortenRoute } from './routes/shorten'
-import { linkRoute } from './routes/l';
+import { linkRoute } from './routes/link';
 
 const app = new Elysia()
 

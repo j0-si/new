@@ -2,6 +2,7 @@
 
 :root {
   --color-background: rgb(34, 35, 51);
+  --color-background-secondary: rgb(17, 18, 34);
   --color-text: rgb(251, 253, 255);
   --color-navbar-background: rgba(11, 13, 20, 0.72);
 
@@ -19,16 +20,17 @@
   --font-monospace: 'Ubuntu Sans Mono', 'M PLUS 1 Code', Consolas, 'Fira Mono', Inconsolata, monospace;
 }
 
-/*
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-weight: normal;
+@keyframes backgroundAnimation {
+  0% {
+    background: var(--color-background-secondary);
+  }
+  50% {
+    background: var(--color-background);
+  }
+  100% {
+    background: var(--color-background-secondary);
+  }
 }
-*/
 
 body {
   text-align: center;
@@ -42,4 +44,45 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    animation: backgroundAnimation 15s linear infinite 
+  }
+}
+
+@layer base {
+  h1 {
+    @apply text-5xl font-bold my-3.5;
+  }
+  h2 {
+    @apply text-4xl font-bold my-3;
+  }
+  h3 {
+    @apply text-3xl font-bold my-2.5;
+  }
+
+  input {
+    background: white;
+    color: black;
+    border: 1px solid #6c757d;
+    border-radius: .375rem;
+    padding: .375rem .75rem;
+    outline: 0;
+  }
+  button {
+    background: #1a1b2b;
+    border: 1px solid #6c757d;
+    padding: .375rem .75rem;
+    border-radius: .375rem;
+    user-select: none;
+
+    &:hover {
+      background: #555666;
+    }
+    &:active {
+      background: #6c757d;
+    }
+  }
 }

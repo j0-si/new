@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "set NITRO_PORT=1051 && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "nuxt": "^3.17.5",
+    "pinia": "^3.0.3",
     "tailwindcss": "^4.1.11",
     "vue": "^3.5.16",
     "vue-router": "^4.5.1"

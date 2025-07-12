@@ -1,5 +1,5 @@
 <template>
-  <div class="supporters">
+  <main>
     <h1>Supporters</h1>
     <p>
       <small>even a dollar makes me happy.</small>
@@ -7,7 +7,7 @@
     <ul class="supporter-list">
       <li>kicky1618</li>
     </ul>
-  </div>
+  </main>
 </template>
 
 <style>
