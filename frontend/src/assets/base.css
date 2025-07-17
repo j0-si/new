@@ -3,8 +3,10 @@
 :root {
   --color-background: rgb(34, 35, 51);
   --color-background-secondary: rgb(17, 18, 34);
+  --color-background-tertialy: rgb(51, 52, 68);
   --color-text: rgb(251, 253, 255);
   --color-navbar-background: rgba(11, 13, 20, 0.72);
+  --color-border: rgb(108, 117, 125);
 
   --font-default:
   'Ubuntu Sans',
@@ -18,6 +20,13 @@
     'Helvetica Neue',
     sans-serif;
   --font-monospace: 'Ubuntu Sans Mono', 'M PLUS 1 Code', Consolas, 'Fira Mono', Inconsolata, monospace;
+}
+
+/* Easing variables */
+:root {
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes backgroundAnimation {

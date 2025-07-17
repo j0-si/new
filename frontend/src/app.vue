@@ -7,7 +7,7 @@
       <NuxtLink to="/" class="brand">j0.si</NuxtLink>
     </div>
     <nav>
-      <NuxtLink to="/supporters">Supporters</NuxtLink>
+      <NuxtLink to="/i/supporters">Supporters</NuxtLink>
     </nav>
   </header>
   <NuxtPage />
