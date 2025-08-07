@@ -1,11 +1,16 @@
 <script setup lang="ts">
 const providedUrl = ref('');
 const customId = ref('');
+const visitLimit = ref(0);
+const isTemporary = ref(false);
 
 const frontendHost = import.meta.env.VITE_FRONTEND_HOST;
 
 function shorten() {
   const url = providedUrl.value;
+	const id = customId.value || null;
+	let limit = visitLimit.value > 0 ? visitLimit.value : null;
+
 
 
 }
@@ -31,13 +36,13 @@ function shorten() {
             </div>
             <div class="grid grid-cols-2">
               <div>
-                <input type="checkbox" id="limitAccess">
+                <input type="number" min="0" v-model="visitLimit" id="limitAccess">
                 <label for="limitAccess">
                   Limit number of accesses
                 </label>
               </div>
               <div>
-                <input type="checkbox" id="isTemporary">
+                <input type="checkbox" v-model="isTemporary" id="isTemporary">
                 <label for="isTemporary">
                   Temporary link
                 </label>
