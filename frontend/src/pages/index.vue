@@ -20,21 +20,27 @@ function shorten() {
           <input type="url" pattern="https?://.+" placeholder="Enter a long url" class="w-[57vw] sm:rounded-e-none max-sm:w-full" v-model="providedUrl">
           <button class="sm:rounded-s-none max-sm:mt-2" type="submit">Shorten long url</button>
         </div>
-        <details class="options-button bg-(--color-background-tertialy) inline-block w-fit border border-zinc-600 text-shadow-zinc-600 " open>
+        <details class="options-button bg-(--color-background-tertialy)" open>
           <summary class="dropdown inline-block bg-slate-600 hover:bg-slate-500 active:bg-slate-700 px-2 py-1 rounded-md border border-zinc-600 text-sm select-none list-none after:inline-block after:border-4 after:border-b-0 after:border-white after:border-x-transparent after:align-[.16rem] after:ml-1">
             options
           </summary>
-          <div class="*:m-1">
-            <div class="flex flex-row">
-              <div class="border border-(--color-border) bg-[#222333] p-1.5 rounded-s-md select-none">{{ frontendHost }}/</div>
-              <input type="url" pattern="https?://.+" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md w-[36vw]" v-model="customId">
+          <div class="details-content w-[54vw] text-nowrap">
+            <div class="flex flex-row my-1">
+              <div class="border border-(--color-border) bg-[#222333] p-1.5 pl-3 rounded-s-md select-none">{{ frontendHost }}/</div>
+              <input type="url" pattern="https?://.+" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
             </div>
             <div class="grid grid-cols-2">
               <div>
-                <input type="checkbox"> Limit number of accesses
+                <input type="checkbox" id="limitAccess">
+                <label for="limitAccess">
+                  Limit number of accesses
+                </label>
               </div>
               <div>
-                <input type="checkbox"> Temporary link
+                <input type="checkbox" id="isTemporary">
+                <label for="isTemporary">
+                  Temporary link
+                </label>
               </div>
             </div>
           </div>
@@ -45,13 +51,13 @@ function shorten() {
 </template>
 <style scoped>
 .options-button {
-  transition: .64s var(--ease-out-quart);
+  transition: .64s var(--ease-out-expo) allow-discrete;
   border-radius: .375rem;
 
   &::details-content {
     transition: .64s var(--ease-out-expo) allow-discrete;
-    overflow: clip;
-    transform-origin: top center;
+    transform-origin: top left;
+    position: relative;
   }
 
   &:open {
@@ -61,13 +67,31 @@ function shorten() {
   &:not(:open)::details-content {
     width: 0;
     height: 0;
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
   }
   &:open::details-content {
     width: auto;
     height: auto;
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
   }
   &:open > summary {
     margin-bottom: 5px;
   }
+}
+
+.options-button .details-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.5s var(--ease-out-quart), opacity 0.5s var(--ease-out-quart);
+}
+
+.options-button[open] .details-content {
+  max-height: 500px; /* adjust as needed */
+  opacity: 1;
 }
 </style>
