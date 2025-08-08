@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import toggleSwitch from '~/components/toggleSwitch.vue';
+
 const providedUrl = ref('');
 const customId = ref('');
 const visitLimit = ref(0);
@@ -34,18 +36,27 @@ function shorten() {
               <div class="border border-(--color-border) bg-[#222333] p-1.5 pl-3 rounded-s-md select-none">{{ frontendHost }}/</div>
               <input type="url" pattern="https?://.+" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
             </div>
-            <div class="grid grid-cols-2">
-              <div>
-                <input type="number" min="0" v-model="visitLimit" id="limitAccess">
-                <label for="limitAccess">
+            <div class="grid">
+              <div class="flex flex-row justify-between">
+                <label
+                  for="limitAccess"
+                >
                   Limit number of accesses
                 </label>
+                <input
+                  type="number" 
+                  min="0" 
+                  v-model="visitLimit" id="limitAccess"
+                  class="text-sm px-2 py-1 w-18"
+                >
               </div>
-              <div>
-                <input type="checkbox" v-model="isTemporary" id="isTemporary">
-                <label for="isTemporary">
+              <div class="flex flex-row justify-between">
+                <label
+                  for="isTemporary"
+                >
                   Temporary link
                 </label>
+                <ToggleSwitch id="isTemporary" />
               </div>
             </div>
           </div>
