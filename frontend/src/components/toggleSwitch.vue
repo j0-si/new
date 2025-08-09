@@ -1,22 +1,27 @@
 <script setup lang="ts">
 const props = defineProps({
-  id: String,
+  checked: Boolean,
 })
+
+const model = defineModel()
 </script>
 <template>
   <div class="toggle-switch">
 
-    <input 
-      class="toggle-switch-checkbox"
-      :id="props.id"
-      type="checkbox"
-      checked="true"
-    >
+    <label>
 
-    <label
-      class="toggle-switch-display"
-      :for="props.id"
-    ></label>
+      <input 
+        class="toggle-switch-checkbox"
+        type="checkbox"
+        v-model="model"
+        :checked="checked"
+      >
+  
+      <div
+        class="toggle-switch-display"
+      ></div>
+
+    </label>
 
   </div>
 </template>
@@ -26,6 +31,12 @@ const props = defineProps({
   --outside-height: 1.5rem;
 
   --inside-ball-size: 1.1rem;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  display: inline-flex;
+  margin: 0 .25rem;
+  vertical-align: top;
 }
 
 .toggle-switch-checkbox {
@@ -34,7 +45,6 @@ const props = defineProps({
 
 .toggle-switch-display {
 
-  display: inline-block;
   position: relative;
 
   width: var(--outside-width);

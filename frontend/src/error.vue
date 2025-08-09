@@ -3,9 +3,6 @@
 
 <template>
   <NuxtLayout>
-
-    <NuxtPage />
-
+    adasdadas
   </NuxtLayout>
 </template>
-

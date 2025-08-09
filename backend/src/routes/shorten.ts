@@ -1,17 +1,23 @@
-import { Elysia, t } from 'elysia'
+import { Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
-import { isLinkDead } from '../utils/isLinkDead'
+import { getLink, isLinkDead } from '../utils/link'
+
+const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
 export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) => {
   try {
     let { id, url, caseSensitive, expiresAt, accessLimit } = body as {
       id?: string,
       url: string,
-      caseSensitive: boolean | false,
+      caseSensitive: boolean | true,
       expiresAt?: Date,
       accessLimit?: number,
     };
+
+    if (id && !idRegex.test(id)) {
+      return { error: "INVALID_ID" }
+    }
 
     let target;
 
@@ -30,7 +36,7 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
 
     // if ID was provided check is the ID taken
     if (id) {
-      const existing = await prisma.link.findUnique({ where: { id } })
+      const existing = await getLink(id)
       if (
         existing &&
         (
@@ -44,11 +50,10 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
       }
     }
 
-    // check target is dead link
-    // reduce ID waste
+    // check target is dead link to reduce ID waste
     if (await isLinkDead(url)) {
       set.status = 400
-      return { error: "TARGET_URL_DEAD" }
+      return { error: "TARGET_URL_DEAD_OR_DISALLOWED" }
     }
 
     // make sure requested temporary link is not expired yet
@@ -63,9 +68,7 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
     if (!id) {
       do {
         id = randomstr(random(4, 5))
-      } while (
-        await prisma.link.findUnique({ where: { id } })
-      )
+      } while ( await getLink(id) )
     }
 
     if (!caseSensitive && id) id = id.toLowerCase();
@@ -89,7 +92,7 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
 
     const link = await prisma.link.create({ data });
 
-    return { link };
+    return { error: false, ...link };
   } catch (error) {
     console.error(error)
 

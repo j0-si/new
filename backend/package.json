@@ -5,13 +5,14 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.8.2",
-    "elysia": "latest"
+    "@prisma/client": "^6.13.0",
+    "elysia": "latest",
+    "robots-parser": "^3.0.1"
   },
   "devDependencies": {
     "bun-types": "latest",
-    "prisma": "^6.8.2"
+    "prisma": "^6.13.0"
   },
   "module": "src/index.js",
-  "packageManager": "pnpm@10.11.0+sha256.a69e9cb077da419d47d18f1dd52e207245b29cac6e076acedbeb8be3b1a67bd7"
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
 }

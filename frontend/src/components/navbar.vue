@@ -13,6 +13,8 @@
 <style scoped>
 header {
   width: 100dvw;
+  height: 45px;
+
   position: sticky;
   top:  0;
   left: 0;
@@ -31,12 +33,12 @@ header {
   text-align: start;
   font-size: 1.5rem;
   font-weight: 600;
-  margin-left: .7rem;
+  margin-left: 1.25rem;
   text-shadow: 0 0 5px var(--color-text);
   align-items: center;
   transition: 0.36s;
   & > a {
-    padding: .1rem 1.2rem;
+    padding: 0 .8rem;
     color: var(--color-text);
   }
 }

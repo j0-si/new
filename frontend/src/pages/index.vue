@@ -1,20 +1,32 @@
 <script setup lang="ts">
-import toggleSwitch from '~/components/toggleSwitch.vue';
+import ToggleSwitch from '~/components/toggleSwitch.vue';
+
+const api = useApi();
 
 const providedUrl = ref('');
 const customId = ref('');
 const visitLimit = ref(0);
 const isTemporary = ref(false);
+const isCaseSensitive = ref(false);
 
 const frontendHost = import.meta.env.VITE_FRONTEND_HOST;
 
-function shorten() {
+async function shorten() {
   const url = providedUrl.value;
 	const id = customId.value || null;
-	let limit = visitLimit.value > 0 ? visitLimit.value : null;
+	const limit = visitLimit.value > 0 ? visitLimit.value : null;
+	const temporary = isTemporary.value || false;
+	const caseSensitive = isCaseSensitive.value || false;
 
-
-
+  const response = await api('/shorten', {
+    method: "POST",
+    body: {
+      id,
+      url,
+      accessLimit: limit,
+      caseSensitive
+    }
+  })
 }
 </script>
 
@@ -34,29 +46,37 @@ function shorten() {
           <div class="details-content w-[54vw] text-nowrap">
             <div class="flex flex-row my-1">
               <div class="border border-(--color-border) bg-[#222333] p-1.5 pl-3 rounded-s-md select-none">{{ frontendHost }}/</div>
-              <input type="url" pattern="https?://.+" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
+              <input type="text" pattern="^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
             </div>
             <div class="grid">
-              <div class="flex flex-row justify-between">
+              <div class="flex flex-row justify-between mx-2 my-1">
                 <label
                   for="limitAccess"
                 >
-                  Limit number of accesses
+                  Max number of accesses
                 </label>
                 <input
                   type="number" 
                   min="0" 
                   v-model="visitLimit" id="limitAccess"
-                  class="text-sm px-2 py-1 w-18"
+                  class="text-sm text-end px-0 py-1 w-18"
                 >
               </div>
-              <div class="flex flex-row justify-between">
+              <div class="flex flex-row justify-between mx-2 my-1">
                 <label
                   for="isTemporary"
                 >
                   Temporary link
                 </label>
-                <ToggleSwitch id="isTemporary" />
+                <ToggleSwitch v-model="isTemporary" />
+              </div>
+              <div class="flex flex-row justify-between mx-2 my-1">
+                <label
+                  for="isTemporary"
+                >
+                  Case sensitive
+                </label>
+                <ToggleSwitch v-model="isCaseSensitive" />
               </div>
             </div>
           </div>
