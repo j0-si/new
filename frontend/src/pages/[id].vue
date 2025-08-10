@@ -12,8 +12,6 @@ interface LinkData {
   accessLimit?: number;
 }
 
-console.log(process.env.NUXT_BACKEND_HOST, false)
-
 /*
   todo: fetch backend /link/[id]
   - redirect based on fetch result
@@ -41,3 +39,5 @@ await navigateTo(data.url, {
   external: true
 });
 </script>
+<template>
+</template>

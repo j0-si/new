@@ -1,5 +1,9 @@
 export const useApi = () => {
-  const apiFetch = $fetch.create({ baseURL: process.env.NUXT_BACKEND_HOST })
+  const runtimeConfig = useRuntimeConfig()
 
-  return apiFetch
+  const apiFetch = $fetch.create({
+    baseURL: runtimeConfig.public.backendHost
+  })
+
+  return apiFetch;
 }

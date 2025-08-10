@@ -1,5 +1,6 @@
 import robotsParser from "robots-parser";
 import { prisma } from '../prisma'
+import config from "./config";
 
 async function fetchRobots(url: string | URL): Promise<string> {
   const result = await fetch(new URL('/robots.txt', url));
@@ -12,8 +13,9 @@ export async function isLinkDead(url: string): Promise<boolean> {
   const robotsTxtDest = new URL('/robots.txt', url);
   const robots = robotsParser(robotsTxtDest.href, await fetchRobots(url))
 
-  // immediately return true if the URL is disallowed in robots.txt
-  if (robots.isDisallowed(url)) return true;
+  // return true if the URL is disallowed in robots.txt
+  // and config.followRobots is true
+  if (robots.isDisallowed(url) && config.followRobots) return true;
 
   const aliveCodes = [
     200, 201, 202, 203, 204, 205, 206,
@@ -25,7 +27,7 @@ export async function isLinkDead(url: string): Promise<boolean> {
   const timeout = setTimeout(() => controller.abort(), 2_000);
 
   return await fetch(url, {
-    method: "HEAD",
+    method: "GET",
     redirect: "manual",
     signal: controller.signal,
     headers: {
@@ -42,7 +44,7 @@ export async function isLinkDead(url: string): Promise<boolean> {
   }).catch(() => true)
 }
 
-export async function getLink(id: string, caseSensitive?: boolean) {
+export async function getLink(id: string, caseSensitive: boolean = true) {
   let result = await prisma.link.findUnique({ where: { id } })
 
   if (!result && !caseSensitive) {
@@ -57,9 +59,59 @@ export async function getLink(id: string, caseSensitive?: boolean) {
 
 export async function removeLink(id: string) {
   // todo: implement remove func
-  // await prisma.link.delete
+  const deleted = await prisma.link.delete({
+    where: { id }
+  })
+
+  return deleted
 }
 
-export async function validateLink(id: string) {
-  const link = await getLink(id)
+export async function validateLinks() {
+
+  // Delete expired links
+  await prisma.link.deleteMany({
+    where: {
+      expiresAt: {
+        // less than (new Date())
+        lt: new Date(),
+      }
+    }
+  })
+
+  // Delete over-accessed links
+  await prisma.link.deleteMany({
+    where: {
+      accessLimit: {
+        lte: 0,
+        not: null,
+      }
+    }
+  })
+
+}
+
+export async function visitLink(id: string) {
+
+  const target = await getLink(id);
+
+  // if target.accessLimit was null, that means the target doesn't limit access count
+  if (target?.accessLimit === null) return target;
+
+  const updated = await prisma.link.update({
+    where: {
+      id,
+      accessLimit: {
+        // null = unlimited
+        not: null,
+      },
+    },
+    data: {
+      accessLimit: {
+        decrement: 1
+      } 
+    },
+  })
+
+  return updated
+
 }

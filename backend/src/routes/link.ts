@@ -1,7 +1,6 @@
-import { Context, Elysia, t } from 'elysia'
+import { Context, Elysia } from 'elysia'
 import { prisma } from '../prisma'
-import { randomstr, random } from '../utils/random'
-import { getLink, isLinkDead } from '../utils/link'
+import { getLink, isLinkDead, validateLinks, visitLink } from '../utils/link'
 
 const elysia = new Elysia();
 
@@ -11,8 +10,10 @@ async function linkHandler({ params, status }: Context) {
     error: true, 
     message: 'ID_NOT_PROVIDED'
   });
+
+  validateLinks()
   
-  const link = await getLink(params.id)
+  const link = await getLink(params.id, false)
   
   if (!link) {
     return status(404, {
@@ -21,6 +22,8 @@ async function linkHandler({ params, status }: Context) {
     });
   }
   
+  if (link?.id) visitLink(link.id);
+
   return { error: false, ...link };
 }
 

@@ -7,7 +7,7 @@ const providedUrl = ref('');
 const customId = ref('');
 const visitLimit = ref(0);
 const isTemporary = ref(false);
-const isCaseSensitive = ref(false);
+const isCaseSensitive = ref(true);
 
 const frontendHost = import.meta.env.VITE_FRONTEND_HOST;
 
@@ -36,8 +36,18 @@ async function shorten() {
       <h1 class="mb-3 text-7xl max-sm:text-[12vmin] font-semibold text-shadow-[0_0_8px_white] mono">j0.si</h1>
       <form class="flex justify-center text-base flex-wrap flex-col max-sm:w-full items-center" @submit.prevent="shorten">
         <div class="flex flex-row max-sm:block m-2">
-          <input type="url" pattern="https?://.+" placeholder="Enter a long url" class="w-[57vw] sm:rounded-e-none max-sm:w-full" v-model="providedUrl">
-          <button class="sm:rounded-s-none max-sm:mt-2" type="submit">Shorten long url</button>
+          <input
+            type="url" 
+            pattern="https?://.+" 
+            placeholder="Enter a long url" 
+            class="w-[57vw] sm:rounded-e-none max-sm:w-full" 
+            v-model="providedUrl"
+            required
+          >
+          <button
+            class="sm:rounded-s-none max-sm:mt-2" 
+            type="submit"
+          >Shorten long url</button>
         </div>
         <details class="options-button bg-(--color-background-tertialy)" open>
           <summary class="dropdown inline-block bg-slate-600 hover:bg-slate-500 active:bg-slate-700 px-2 py-1 rounded-md border border-zinc-600 text-sm select-none list-none after:inline-block after:border-4 after:border-b-0 after:border-white after:border-x-transparent after:align-[.16rem] after:ml-1">
@@ -49,35 +59,45 @@ async function shorten() {
               <input type="text" pattern="^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
             </div>
             <div class="grid">
-              <div class="flex flex-row justify-between mx-2 my-1">
-                <label
-                  for="limitAccess"
-                >
-                  Max number of accesses
-                </label>
-                <input
-                  type="number" 
-                  min="0" 
-                  v-model="visitLimit" id="limitAccess"
-                  class="text-sm text-end px-0 py-1 w-18"
-                >
-              </div>
-              <div class="flex flex-row justify-between mx-2 my-1">
-                <label
-                  for="isTemporary"
-                >
-                  Temporary link
-                </label>
-                <ToggleSwitch v-model="isTemporary" />
-              </div>
+
               <div class="flex flex-row justify-between mx-2 my-1">
                 <label
                   for="isTemporary"
                 >
                   Case sensitive
                 </label>
-                <ToggleSwitch v-model="isCaseSensitive" />
+                <ToggleSwitch
+                  v-model="isCaseSensitive" 
+                  checked
+                />
               </div>
+              
+              <div class="flex flex-row justify-between mx-2 my-1">
+                <label
+                  for="limitAccess"
+                >
+                  Max number of accesses <small>
+                    (0 = unlimited)
+                  </small>
+                </label>
+                <input
+                  type="number" 
+                  min="0"
+                  max="2147483647"
+                  v-model="visitLimit" id="limitAccess"
+                  class="text-sm text-end px-0 py-1 w-26"
+                >
+              </div>
+
+              <div class="flex flex-row justify-between mx-2 my-1">
+                <label
+                  for="isTemporary"
+                >
+                  Expires after
+                </label>
+                <ToggleSwitch v-model="isTemporary" />
+              </div>
+
             </div>
           </div>
         </details>
@@ -87,6 +107,7 @@ async function shorten() {
 </template>
 <style scoped>
 .options-button {
+
   transition: .64s var(--ease-out-expo) allow-discrete;
   border-radius: .375rem;
 
@@ -100,6 +121,7 @@ async function shorten() {
     padding: 5px;
     border-radius: calc(.375rem + 5px);
   }
+
   &:not(:open)::details-content {
     width: 0;
     height: 0;
@@ -107,6 +129,7 @@ async function shorten() {
     opacity: 0;
     pointer-events: none;
   }
+
   &:open::details-content {
     width: auto;
     height: auto;
@@ -114,10 +137,13 @@ async function shorten() {
     opacity: 1;
     pointer-events: auto;
   }
+
   &:open > summary {
     margin-bottom: 5px;
   }
+
 }
+
 
 .options-button .details-content {
   max-height: 0;

@@ -78,6 +78,7 @@ body {
     padding: .375rem .75rem;
     outline: 0;
   }
+
   button {
     background: #1a1b2b;
     border: 1px solid #6c757d;
@@ -89,7 +90,7 @@ body {
       background: #555666;
     }
     &:active {
-      background: #6c757d;
+      background: #30343b;
     }
   }
 }

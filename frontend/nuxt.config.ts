@@ -1,6 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 import tailwindcss from '@tailwindcss/vite'
+import prodRuntimeConfig from './config'
+import devRuntimeConfig from './config.dev'
+
+const config = process.env.NODE_ENV === "production" ?
+  prodRuntimeConfig : devRuntimeConfig;
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
@@ -25,6 +30,12 @@ export default defineNuxtConfig({
       ]
     },
   },
+
+  devServer: {
+    port: devRuntimeConfig.port
+  },
+
+  runtimeConfig: config.env,
 
   srcDir: "./src",
 

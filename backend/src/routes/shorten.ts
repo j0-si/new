@@ -1,22 +1,39 @@
 import { Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
-import { getLink, isLinkDead } from '../utils/link'
+import { getLink, isLinkDead, validateLinks } from '../utils/link'
 
 const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
-export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) => {
+const elysia = new Elysia();
+
+elysia.post("/shorten", async ({ body, set }) => {
   try {
-    let { id, url, caseSensitive, expiresAt, accessLimit } = body as {
+    validateLinks()
+
+    let { id, url, caseSensitive, expiresAt: rawExpiresAt, expiresIn, accessLimit } = body as {
       id?: string,
       url: string,
       caseSensitive: boolean | true,
       expiresAt?: Date,
+      expiresIn?: number,
       accessLimit?: number,
     };
 
     if (id && !idRegex.test(id)) {
       return { error: "INVALID_ID" }
+    }
+
+    // max value in 32-bit integer
+    if (accessLimit && accessLimit > 2147483647) {
+      return { error: "ACCESS_LIMIT_TOO_MANY" }
+    }
+
+    let expiresAt;
+    if (rawExpiresAt) {
+      expiresAt = rawExpiresAt
+    } else if (expiresIn) {
+      expiresAt = new Date(Date.now() + expiresIn)
     }
 
     let target;
@@ -84,6 +101,7 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
       id,
       url,
       caseSensitive,
+      expiresAt,
       idLowercase: id?.toLowerCase(),
     };
 
@@ -110,3 +128,5 @@ export const shortenRoute = new Elysia().post("/shorten", async ({ body, set }) 
     };
   }
 });
+
+export const shortenRoute = elysia;

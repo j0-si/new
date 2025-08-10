@@ -1,0 +1,5 @@
+import prodConfig from '../../config'
+import devConfig from '../../config.dev'
+
+export default process.env.NODE_ENV === "production" ? 
+  prodConfig : devConfig;
