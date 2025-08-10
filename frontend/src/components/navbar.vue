@@ -13,7 +13,7 @@
 <style scoped>
 header {
   width: 100dvw;
-  height: 45px;
+  height: var(--navbar-height);
 
   position: sticky;
   top:  0;

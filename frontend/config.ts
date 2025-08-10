@@ -1,12 +1,10 @@
 export default {
   /* --- Set port number in .env --- */
+  
 
-  env: {
+  serviceName: "j0.si",
     
-    public: {
-      frontendHost: "",
-      backendHost: "",
-    }
-    
-  }
+  frontendHost: "",
+  backendHost: "",
+  
 }

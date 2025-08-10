@@ -2,12 +2,9 @@ export default {
   /* --- Set port number in .env.dev or here --- */
   port: 1051,
 
-  env: {
+  serviceName: "j0.si",
 
-    public: {
-      frontendHost: "https://j0.si",
-      backendHost: "http://localhost:8051",
-    }
-    
-  }
+  frontendHost: "https://j0.si",
+  backendHost: "http://localhost:8051",
+
 }

@@ -35,7 +35,14 @@ export default defineNuxtConfig({
     port: devRuntimeConfig.port
   },
 
-  runtimeConfig: config.env,
+  runtimeConfig: {
+    public: {
+      serviceName: config.serviceName,
+
+      frontendHost: config.frontendHost,
+      backendHost: config.backendHost,
+    }
+  },
 
   srcDir: "./src",
 

@@ -2,6 +2,7 @@
 import ToggleSwitch from '~/components/toggleSwitch.vue';
 
 const api = useApi();
+const runtimeConfig = useRuntimeConfig()
 
 const providedUrl = ref('');
 const customId = ref('');
@@ -9,7 +10,8 @@ const visitLimit = ref(0);
 const isTemporary = ref(false);
 const isCaseSensitive = ref(true);
 
-const frontendHost = import.meta.env.VITE_FRONTEND_HOST;
+const serviceName = runtimeConfig.public.serviceName;
+const frontendHost = runtimeConfig.public.frontendHost;
 
 async function shorten() {
   const url = providedUrl.value;
@@ -32,8 +34,10 @@ async function shorten() {
 
 <template>
   <main>
-    <div class="flex flex-col justify-center items-center h-[calc(100dvh-7rem)]">
-      <h1 class="mb-3 text-7xl max-sm:text-[12vmin] font-semibold text-shadow-[0_0_8px_white] mono">j0.si</h1>
+    <div class="flex flex-col justify-center items-center min-h-[calc(100dvh-7rem)]">
+      <h1 class="mb-3 text-7xl max-sm:text-[12vmin] font-semibold text-shadow-[0_0_8px_white] mono">
+        {{ serviceName }}
+      </h1>
       <form class="flex justify-center text-base flex-wrap flex-col max-sm:w-full items-center" @submit.prevent="shorten">
         <div class="flex flex-row max-sm:block m-2">
           <input
