@@ -41,4 +41,7 @@ yarn-error.log*
 package-lock.json
 **/*.bun
 
+# prisma
+/src/generated/prisma
+
 .env

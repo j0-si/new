@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import ToggleSwitch from '~/components/toggleSwitch.vue';
 
 const api = useApi();
@@ -7,8 +8,14 @@ const runtimeConfig = useRuntimeConfig()
 const providedUrl = ref('');
 const customId = ref('');
 const visitLimit = ref(0);
-const isTemporary = ref(false);
+const expiresIn = ref<number>(0);
+const expiresAt = ref<string>(dayjs().format('YYYY-MM-DDTHH:mm'));
 const isCaseSensitive = ref(true);
+const expireDateType = ref("after");
+const expiresAtMin = ref("")
+const expiresAfterCustom = ref(false)
+
+const expiresAtInputElement = ref(null)
 
 const serviceName = runtimeConfig.public.serviceName;
 const frontendHost = runtimeConfig.public.frontendHost;
@@ -17,19 +24,69 @@ async function shorten() {
   const url = providedUrl.value;
 	const id = customId.value || null;
 	const limit = visitLimit.value > 0 ? visitLimit.value : null;
-	const temporary = isTemporary.value || false;
 	const caseSensitive = isCaseSensitive.value || false;
 
-  const response = await api('/shorten', {
+  const expiresData: {
+    expiresAt?: Date,
+    expiresIn?: number,
+  } = {}
+
+  if (expireDateType.value === "after") {
+    const expiresInFinalized = expiresIn.value > 0 ? expiresIn.value : undefined;
+
+    if (expiresInFinalized) {
+      expiresData.expiresIn = expiresInFinalized * 1e3
+    }
+  } else if (expireDateType.value === "at") {
+    const expiresAtDate = new Date(expiresAt.value)
+    
+    if (
+      expiresAt.value &&
+      expiresAtDate.getTime() < Date.now()
+    ) {
+      return;
+    }
+
+    expiresData.expiresAt = expiresAtDate
+  }
+
+  const created = await api('/shorten', {
     method: "POST",
     body: {
       id,
       url,
       accessLimit: limit,
-      caseSensitive
+      caseSensitive,
+      ...expiresData,
     }
-  })
+  });
+
+  console.log(created)
 }
+
+watch(expireDateType, (newType, oldType) => {
+  // only when "at" was selected
+  if (newType === oldType || newType !== "at") return;
+
+  // if there was already a value, skip
+  if (expiresAt.value) return;
+
+  expiresAt.value = dayjs().format('YYYY-MM-DDTHH:mm')
+})
+
+onMounted(() => {
+  
+  setExpiresAtMinValue()
+
+  setTimeout(() => {
+    setInterval(setExpiresAtMinValue, 60_000)
+  }, 60_000 - (Date.now() % 60_000))
+  
+  function setExpiresAtMinValue(){
+    expiresAtMin.value = dayjs().format('YYYY-MM-DDTHH:mm')
+  }
+
+})
 </script>
 
 <template>
@@ -39,6 +96,7 @@ async function shorten() {
         {{ serviceName }}
       </h1>
       <form class="flex justify-center text-base flex-wrap flex-col max-sm:w-full items-center" @submit.prevent="shorten">
+
         <div class="flex flex-row max-sm:block m-2">
           <input
             type="url" 
@@ -53,32 +111,40 @@ async function shorten() {
             type="submit"
           >Shorten long url</button>
         </div>
-        <details class="options-button bg-(--color-background-tertialy)" open>
+
+        <details class="options-button bg-(--color-background-tertialy) open:w-full open:min-w-70 md:open:w-[54vw]" open>
           <summary class="dropdown inline-block bg-slate-600 hover:bg-slate-500 active:bg-slate-700 px-2 py-1 rounded-md border border-zinc-600 text-sm select-none list-none after:inline-block after:border-4 after:border-b-0 after:border-white after:border-x-transparent after:align-[.16rem] after:ml-1">
             options
           </summary>
-          <div class="details-content w-[54vw] text-nowrap">
+
+          <div class="details-content w-full text-nowrap transition duration-160">
+            
             <div class="flex flex-row my-1">
               <div class="border border-(--color-border) bg-[#222333] p-1.5 pl-3 rounded-s-md select-none">{{ frontendHost }}/</div>
               <input type="text" pattern="^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$" placeholder="enter_a_custom_link_id" class="rounded-none max-sm:w-full rounded-e-md flex-auto pl-2" v-model="customId">
             </div>
+
             <div class="grid">
 
               <div class="flex flex-row justify-between mx-2 my-1">
                 <label
-                  for="isTemporary"
+                  for="isCaseSensitive"
+                  class="content-center"
                 >
                   Case sensitive
                 </label>
                 <ToggleSwitch
                   v-model="isCaseSensitive" 
+                  id="isCaseSensitive"
                   checked
+                  :disabled="!customId"
                 />
               </div>
               
               <div class="flex flex-row justify-between mx-2 my-1">
                 <label
                   for="limitAccess"
+                  class="content-center max-sm:flex max-sm:flex-col text-start"
                 >
                   Max number of accesses <small>
                     (0 = unlimited)
@@ -87,24 +153,86 @@ async function shorten() {
                 <input
                   type="number" 
                   min="0"
-                  max="2147483647"
+                  :max="2 ** 31 - 1"
                   v-model="visitLimit" id="limitAccess"
-                  class="text-sm text-end px-0 py-1 w-26"
+                  class="text-sm text-end px-2 py-1 w-26 h-fit"
                 >
               </div>
 
               <div class="flex flex-row justify-between mx-2 my-1">
                 <label
-                  for="isTemporary"
+                  for="expires"
+                  class="content-center"
                 >
-                  Expires after
+                  Expires <select v-model="expireDateType">
+                    <option selected value="after">after</option>
+                    <option value="at">at</option>
+                  </select>
                 </label>
-                <ToggleSwitch v-model="isTemporary" />
+
+                <!-- after -->
+                <div v-if="expireDateType === 'after'" class="flex items-center">
+                  <div class="">
+                    <label
+                      for="expiresAfterCustom"
+                      class="content-center"
+                    >
+                      Custom
+                    </label>
+                    <ToggleSwitch
+                      v-model="expiresAfterCustom" 
+                      id="expiresAfterCustom"
+                    />
+                  </div>
+
+                  <div v-if="expiresAfterCustom">
+                    <input
+                      v-model="expiresIn"
+                      class="text-sm text-end w-44 px-2 py-1"
+                      id="expires"
+                      type="number"
+                      min="0"
+                      placeholder="(in seconds)"
+                    />
+                  </div>
+
+                  <div v-else>
+                    <select
+                      class="text-sm text-end w-28 px-2 py-1 input"
+                      v-model="expiresIn"
+                    >
+                      <option :value="0" selected>Never</option>
+                      <option :value="30 * 60 * 1e3">30 minutes</option>
+                      <option :value="60 * 60 * 1e3">1 hour</option>
+                      <option :value="3 * 60 * 60 * 1e3">3 hours</option>
+                      <option :value="6 * 60 * 60 * 1e3">6 hours</option>
+                      <option :value="12 * 60 * 60 * 1e3">12 hours</option>
+                      <option :value="24 * 60 * 60 * 1e3">1 day</option>
+                      <option :value="3 * 24 * 60 * 60 * 1e3">3 days</option>
+                      <option :value="7 * 24 * 60 * 60 * 1e3">7 days</option>
+                      <option :value="expiresIn" disabled>Custom</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <!-- at -->
+                <input
+                  v-if="expireDateType === 'at'"
+                  v-model="expiresAt"
+                  ref="expiresAtInputElement"
+                  class="text-sm text-end w-44 px-2 py-1"
+                  id="expires"
+                  type="datetime-local"
+                  :min="expiresAtMin"
+                />
               </div>
 
             </div>
+
           </div>
         </details>
+
       </form>
     </div>
   </main>

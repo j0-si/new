@@ -115,3 +115,17 @@ export async function visitLink(id: string) {
   return updated
 
 }
+
+export async function checkIdAvailability(id: string) {
+  const existing = await getLink(id, false);
+
+  if (existing) return false;
+
+  const idDuplicate = await prisma.link.findFirst({
+    where: {
+      idLowercase: id.toLowerCase()
+    }
+  })
+
+  return !idDuplicate;
+}

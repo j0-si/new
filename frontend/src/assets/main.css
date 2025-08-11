@@ -41,3 +41,7 @@ a {
 .mono {
   font-family: var(--font-monospace);
 }
+
+option {
+  color: black;
+}

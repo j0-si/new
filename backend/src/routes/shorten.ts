@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
-import { getLink, isLinkDead, validateLinks } from '../utils/link'
+import { checkIdAvailability, getLink, isLinkDead, validateLinks } from '../utils/link'
 
 const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
@@ -15,10 +15,14 @@ elysia.post("/shorten", async ({ body, set }) => {
       id?: string,
       url: string,
       caseSensitive: boolean | true,
-      expiresAt?: Date,
+      expiresAt?: Date | string,
       expiresIn?: number,
       accessLimit?: number,
     };
+
+    if (!url) {
+      return { error: "URL_NOT_PROVIDED" }
+    }
 
     if (id && !idRegex.test(id)) {
       return { error: "INVALID_ID" }
@@ -31,7 +35,7 @@ elysia.post("/shorten", async ({ body, set }) => {
 
     let expiresAt;
     if (rawExpiresAt) {
-      expiresAt = rawExpiresAt
+      expiresAt = new Date(rawExpiresAt)
     } else if (expiresIn) {
       expiresAt = new Date(Date.now() + expiresIn)
     }
@@ -53,15 +57,9 @@ elysia.post("/shorten", async ({ body, set }) => {
 
     // if ID was provided check is the ID taken
     if (id) {
-      const existing = await getLink(id)
-      if (
-        existing &&
-        (
-          existing.caseSensitive ||
-          existing.id === id ||
-          (id && existing.idLowercase === id.toLowerCase())
-        )
-      ) {
+      const isIdAvailable = await checkIdAvailability(id)
+
+      if ( !isIdAvailable ) {
         set.status = 409;
         return { error: "ID_ALREADY_TAKEN" };
       }
@@ -85,7 +83,7 @@ elysia.post("/shorten", async ({ body, set }) => {
     if (!id) {
       do {
         id = randomstr(random(4, 5))
-      } while ( await getLink(id) )
+      } while ( await checkIdAvailability(id) )
     }
 
     if (!caseSensitive && id) id = id.toLowerCase();

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps({
+  id: String,
   checked: Boolean,
+  disabled: Boolean,
 })
 
 const model = defineModel()
@@ -8,13 +10,15 @@ const model = defineModel()
 <template>
   <div class="toggle-switch">
 
-    <label>
+    <label :for="props.id">
 
       <input 
         class="toggle-switch-checkbox"
         type="checkbox"
         v-model="model"
-        :checked="checked"
+        :id="props.id"
+        :checked="props.checked"
+        :disabled="props.disabled"
       >
   
       <div
@@ -88,5 +92,19 @@ const model = defineModel()
   &::after {
     left: calc(var(--outside-height) / 2 + (var(--outside-width) - var(--outside-height)));
   }
+}
+
+/* disabled style */
+.toggle-switch-checkbox:disabled + .toggle-switch-display {
+  background: rgb(163, 163, 163);
+
+  &::after {
+    background: lightgray;
+  }
+}
+
+/* disabled && checked style */
+.toggle-switch-checkbox:checked:disabled + .toggle-switch-display {
+  background: rgb(101, 184, 101);
 }
 </style>
