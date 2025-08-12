@@ -188,7 +188,7 @@ onMounted(() => {
                   <div v-if="expiresAfterCustom">
                     <input
                       v-model="expiresIn"
-                      class="text-sm text-end w-44 px-2 py-1"
+                      class="text-sm text-end w-28 px-2 py-1"
                       id="expires"
                       type="number"
                       min="0"
@@ -257,7 +257,7 @@ onMounted(() => {
   &:not(:open)::details-content {
     width: 0;
     height: 0;
-    transform: scale(0);
+    transform: scale(0.5);
     opacity: 0;
     pointer-events: none;
   }

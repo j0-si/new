@@ -12,10 +12,8 @@ interface LinkData {
   accessLimit?: number;
 }
 
-/*
-  todo: fetch backend /link/[id]
-  - redirect based on fetch result
-*/
+const id = route.params.id.toString().replace(/\+$/, '');
+const isSuffixPlus = route.params.id.toString().endsWith('+')
 
 async function getLinkData(id: string): Promise<LinkData>  {
   return await api(`/link/${id}`, {
@@ -23,7 +21,7 @@ async function getLinkData(id: string): Promise<LinkData>  {
   })
 }
 
-const data = await getLinkData(route.params.id.toString())
+const data = await getLinkData(id)
 
 if (data.error) {
   throw createError({
@@ -35,9 +33,21 @@ if (data.error) {
   })
 }
 
-await navigateTo(data.url, {
-  external: true
-});
+if (!isSuffixPlus) {
+  await navigateTo(data.url, {
+    external: true
+  });
+}
 </script>
 <template>
+  <div class="grid items-center justify-center w-screen min-h-screen">
+
+    <div>
+      <p>
+        Original URL:
+        <NuxtLink :to="data.url">{{ data.url }}</NuxtLink>
+      </p>
+    </div>
+
+  </div>
 </template>
