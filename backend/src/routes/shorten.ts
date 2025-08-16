@@ -2,6 +2,7 @@ import { Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
 import { checkIdAvailability, getLink, isLinkDead, validateLinks } from '../utils/link'
+import logger from '../utils/logger'
 
 const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
@@ -108,9 +109,11 @@ elysia.post("/shorten", async ({ body, set }) => {
 
     const link = await prisma.link.create({ data });
 
+    logger.info(`shorten /${id} ${JSON.stringify(link, null, 2)}`)
+
     return { error: false, ...link };
   } catch (error) {
-    console.error(error)
+    logger.error(error)
 
     let errorDetail;
     if (error instanceof Error) {

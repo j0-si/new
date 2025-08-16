@@ -1,6 +1,7 @@
 import { Context, Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { getLink, isLinkDead, validateLinks, visitLink } from '../utils/link'
+import logger from '../utils/logger'
 
 const elysia = new Elysia();
 
@@ -23,6 +24,8 @@ async function linkHandler({ params, status }: Context) {
   }
   
   if (link?.id) visitLink(link.id);
+
+  logger.info(`access /${link.id} ${JSON.stringify(link, null, 2)}`)
 
   return { error: false, ...link };
 }

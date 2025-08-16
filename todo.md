@@ -1,3 +1,3 @@
 # todo
 - [x] migrate to Nuxt
-- [ ] use dynamic route to handle redirect URL
+- [x] use dynamic route to handle redirect URL

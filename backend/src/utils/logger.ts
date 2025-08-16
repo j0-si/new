@@ -1,6 +1,6 @@
 import util from 'node:util'
 
-function formatDate(date: Date): string {
+function formatDate(date: Date, type?: string): string {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const dateStr = date.getDate().toString().padStart(2, '0');
@@ -12,22 +12,23 @@ function formatDate(date: Date): string {
   const dateFormat = `${year}/${month}/${dateStr}`
   const timeFormat = `${hours}:${minutes}:${seconds}.${milliseconds}`
 
-  return `${dateFormat} ${timeFormat}`;
+  return `[${dateFormat} ${timeFormat}${type ? ` ${type}` : ""}]`;
 }
 
-export function log(message?: any): void {
-  const date = formatDate(new Date());
-  const indent = " ".repeat(date.length)
+export function info(message?: any): void {
+  const date = formatDate(new Date(), "INFO");
 
-  if (!message) {
-    console.log(date)
-    return;
-  }
-
-  const result = message.toString().split('\n').map((line: string, index: number) => {
-    return `${index ? indent : date} ${line}`
-  }).join('\n')
-
-  console.log(result)
+  console.log(util.format(date, message))
   return;
+}
+
+export function error(message?: any): void {
+  const date = formatDate(new Date(), "ERR!");
+
+  console.log(util.format(date, message))
+  return;
+}
+
+export default {
+  info, error
 }
