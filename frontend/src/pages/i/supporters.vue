@@ -6,6 +6,7 @@
     </p>
     <ul class="supporter-list">
       <li>kicky1618</li>
+      <li>Lunar / 9a.si</li>
     </ul>
   </main>
 </template>
