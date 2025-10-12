@@ -10,8 +10,9 @@ const model = defineModel()
 <template>
   <div class="toggle-switch">
 
-    <label :for="props.id">
+    <label class="toggle-switch-label" :for="props.id">
 
+      
       <input 
         class="toggle-switch-checkbox"
         type="checkbox"
@@ -20,7 +21,7 @@ const model = defineModel()
         :checked="props.checked"
         :disabled="props.disabled"
       >
-  
+
       <div
         class="toggle-switch-display"
       ></div>
@@ -43,8 +44,18 @@ const model = defineModel()
   vertical-align: top;
 }
 
+.toggle-switch-label {
+  position: relative;
+}
+
 .toggle-switch-checkbox {
-  display: none;
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  width: var(--outside-width);
+  height: var(--outside-height);
+
+  outline: 1px solid black;
 }
 
 .toggle-switch-display {

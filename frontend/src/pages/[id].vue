@@ -2,18 +2,15 @@
 const api = useApi();
 const route = useRoute();
 
-interface LinkData {
-  error: boolean;
-  id: string;
-  idLowercase: string;
-  url: string,
-  caseSensitive: boolean;
-  expiresAt?: Date;
-  accessLimit?: number;
-}
+import type { LinkData } from '~/types/link';
 
-const id = route.params.id.toString().replace(/\+$/, '');
-const isSuffixPlus = route.params.id.toString().endsWith('+')
+const id = route.params.id?.toString().replace(/\+$/, '');
+const isSuffixPlus = route.params.id?.toString().endsWith('+')
+
+if (!id) throw createError({
+  statusCode: 500,
+  statusMessage: "id not found",
+})
 
 async function getLinkData(id: string): Promise<LinkData>  {
   return await api(`/link/${id}`, {

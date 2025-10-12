@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import ToggleSwitch from '~/components/toggleSwitch.vue';
+import type { Alert } from '~/components/alertPopup.vue';
+import type { LinkData } from '~/types/link';
 
 const api = useApi();
 const runtimeConfig = useRuntimeConfig()
@@ -19,6 +21,14 @@ const expiresAtInputElement = ref(null)
 
 const serviceName = runtimeConfig.public.serviceName;
 const frontendHost = runtimeConfig.public.frontendHost;
+
+const { alerts, setAlerts } = inject<{
+  alerts: Ref<Alert[]>,
+  setAlerts: Function,
+}>('alerts', {
+  alerts: ref([]),
+  setAlerts: () => {},
+});
 
 async function shorten() {
   const url = providedUrl.value;
@@ -50,7 +60,7 @@ async function shorten() {
     expiresData.expiresAt = expiresAtDate
   }
 
-  const created = await api('/shorten', {
+  const link: LinkData = await api('/shorten', {
     method: "POST",
     body: {
       id,
@@ -59,9 +69,24 @@ async function shorten() {
       caseSensitive,
       ...expiresData,
     }
-  });
+  })
 
-  console.log(created)
+  setAlerts([
+    ...alerts.value,  
+    {
+      type: "success",
+      richText: [
+        {
+          text: "URL Shortened! "
+        },
+        {
+          url: new URL(link.id, frontendHost).href,
+          text: new URL(link.id, frontendHost).href,
+          class: "blue"
+        },
+      ],
+    }
+  ])
 }
 
 watch(expireDateType, (newType, oldType) => {
@@ -95,9 +120,10 @@ onMounted(() => {
       <h1 class="mb-3 text-7xl max-sm:text-[12vmin] font-semibold text-shadow-[0_0_8px_white] mono">
         {{ serviceName }}
       </h1>
+
       <form class="flex justify-center text-base flex-wrap flex-col max-sm:w-full items-center" @submit.prevent="shorten">
 
-        <div class="flex flex-row max-sm:block m-2">
+        <div class="flex flex-row max-sm:block max-sm:w-full p-2">
           <input
             type="url" 
             pattern="https?://.+" 
@@ -112,7 +138,7 @@ onMounted(() => {
           >Shorten long url</button>
         </div>
 
-        <details class="options-button bg-(--color-background-tertialy) open:w-full open:min-w-70 md:open:w-[54vw]" open>
+        <details class="options-button bg-(--color-background-tertialy) open:w-full open:min-w-70 md:open:w-143" open>
           <summary class="dropdown inline-block bg-slate-600 hover:bg-slate-500 active:bg-slate-700 px-2 py-1 rounded-md border border-zinc-600 text-sm select-none list-none after:inline-block after:border-4 after:border-b-0 after:border-white after:border-x-transparent after:align-[.16rem] after:ml-1">
             options
           </summary>
@@ -185,20 +211,19 @@ onMounted(() => {
                     />
                   </div>
 
-                  <div v-if="expiresAfterCustom">
+                  <div v-if="expiresAfterCustom" class="expires-custom">
                     <input
                       v-model="expiresIn"
-                      class="text-sm text-end w-28 px-2 py-1"
+                      class="text-sm text-end w-32 px-2 py-1 expires-custom-input"
                       id="expires"
                       type="number"
                       min="0"
-                      placeholder="(in seconds)"
                     />
                   </div>
 
                   <div v-else>
                     <select
-                      class="text-sm text-end w-28 px-2 py-1 input"
+                      class="text-sm text-end w-32 px-2 py-1 input"
                       v-model="expiresIn"
                     >
                       <option :value="0" selected>Never</option>
@@ -276,7 +301,6 @@ onMounted(() => {
 
 }
 
-
 .options-button .details-content {
   max-height: 0;
   opacity: 0;
@@ -287,5 +311,25 @@ onMounted(() => {
 .options-button[open] .details-content {
   max-height: 500px; /* adjust as needed */
   opacity: 1;
+}
+
+.expires-custom {
+  display: inline-block;
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: "ms";
+    font-family: var(--font-default);
+    font-size: var(--text-sm);
+    color: black;
+    inset: 0 1.5rem 0 auto;
+    line-height: 2.125;
+  }
+}
+
+.expires-custom-input::-webkit-inner-spin-button,
+.expires-custom-input::-webkit-inner-spin-button {
+  margin-left: 1.375rem;
 }
 </style>

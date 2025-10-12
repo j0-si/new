@@ -5,6 +5,19 @@
   interpolate-size: allow-keywords;
 }
 
+@keyframes alert-appear {
+  from {
+    filter: blur(4px);
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+  to {
+    filter: blur(0px);
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
 body {
   overflow-x: hidden;
 }
@@ -22,7 +35,8 @@ a {
   transition: 0.4s;
   padding: 2px 4px;
   border-radius: 5px;
-  color: var(--color-text);
+  cursor: pointer;
+  /* color: var(--color-text); */
 }
 .blue {
   color: rgb(32, 121, 238);
@@ -44,4 +58,8 @@ a {
 
 option {
   color: black;
+}
+
+.text-default {
+  color: var(--color-text);
 }

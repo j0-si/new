@@ -84,7 +84,7 @@ elysia.post("/shorten", async ({ body, set }) => {
     if (!id) {
       do {
         id = randomstr(random(4, 5))
-      } while ( await checkIdAvailability(id) )
+      } while ( !await checkIdAvailability(id) )
     }
 
     if (!caseSensitive && id) id = id.toLowerCase();

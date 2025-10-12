@@ -4,7 +4,7 @@
       <NuxtLink to="/" class="brand">j0.si</NuxtLink>
     </div>
     <nav>
-      <NuxtLink to="/i/supporters">Supporters</NuxtLink>
+      <NuxtLink to="/i/supporters" class="nav-link">Supporters</NuxtLink>
     </nav>
   </header>
 </template>
@@ -47,9 +47,14 @@ nav {
   text-align: end;
 }
 
+.nav-link {
+  color: var(--color-gray-300);
+}
+
 @media (hover: hover) {
   .navbar-brand:hover {
     text-shadow: 0 0 8px var(--color-text);
   }
 }
+
 </style>
