@@ -3,7 +3,10 @@
   "version": "1.0.50",
   "scripts": {
     "start": "NODE_ENV=production && bun run --env-file=.env.production src/index.ts",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "studio": "prisma studio",
+    "db:migrate:dev": "prisma generate && prisma migrate dev",
+    "db:migrate": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
