@@ -79,9 +79,12 @@ elysia.post("/shorten", async ({ body, set }) => {
     }
 
     if (accessLimit && accessLimit < 1) accessLimit = undefined;
-    
+
     // generate unique id if id is not provided
     if (!id) {
+      // force caseSensitive
+      caseSensitive = true;
+
       do {
         id = randomstr(random(4, 5))
       } while ( !await checkIdAvailability(id) )

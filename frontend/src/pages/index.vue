@@ -99,6 +99,13 @@ watch(expireDateType, (newType, oldType) => {
   expiresAt.value = dayjs().format('YYYY-MM-DDTHH:mm')
 })
 
+watch(customId, (newCustomId) => {
+  // force caseSensitive if no ID is provided
+  if (!newCustomId) {
+    isCaseSensitive.value = true
+  }
+})
+
 onMounted(() => {
   
   setExpiresAtMinValue()
