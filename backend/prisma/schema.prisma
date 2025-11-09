@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -15,19 +12,35 @@ datasource db {
 }
 
 model Link {
-  id String @id
+  id          String @id
   idLowercase String
-  url String
+  url         String
 
-  caseSensitive Boolean @default(false)
-  expiresAt DateTime?
-  accessLimit Int?
-	accesses Int @default(0)
-	authorId String?
+  caseSensitive Boolean   @default(false)
+  expiresAt     DateTime?
+  accessLimit   Int?
+  accesses      Int       @default(0)
+  authorId      String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model User {
-	id String @id
-	username String @unique @db.Client
-	password String
+  id        String   @id
+  username  String   @unique @db.Citext
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  token String @unique
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }

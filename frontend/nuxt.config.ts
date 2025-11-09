@@ -32,7 +32,7 @@ export default defineNuxtConfig({
   },
 
   devServer: {
-    port: devRuntimeConfig.port
+    port: devRuntimeConfig.port,
   },
 
   runtimeConfig: {
@@ -49,7 +49,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       tailwindcss(),
-    ]
+    ],
   },
 
   modules: ['@nuxt/fonts', '@nuxt/icon']

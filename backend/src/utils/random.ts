@@ -2,7 +2,8 @@ export const chars = {
   numbers: "0123456789",
   letterLC: "abcdefghijklmnopqrstuvwxyz",
   letterUC: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  symbols: "-_"
+  symbols: "-_",
+  extraSymbols: ".!#$%&=/+*<>@()[]{}|~^;:?"
 }
 
 export function random(min: number, max: number): number {

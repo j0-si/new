@@ -3,10 +3,13 @@ import { prisma } from '../prisma'
 import { randomstr, random } from '../utils/random'
 import { checkIdAvailability, getLink, isLinkDead, validateLinks } from '../utils/link'
 import logger from '../utils/logger'
+import { ip } from 'elysia-ip'
 
 const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
 const elysia = new Elysia();
+
+elysia.use(ip())
 
 elysia.post("/shorten", async ({ body, set }) => {
   try {

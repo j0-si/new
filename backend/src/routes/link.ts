@@ -2,10 +2,12 @@ import { Context, Elysia } from 'elysia'
 import { prisma } from '../prisma'
 import { getLink, isLinkDead, validateLinks, visitLink } from '../utils/link'
 import logger from '../utils/logger'
+import { ContextWithIP } from '../utils/types';
+import { ip } from 'elysia-ip';
 
-const elysia = new Elysia();
+const elysia = new Elysia().use(ip());
 
-async function linkHandler({ params, status }: Context) {
+async function linkHandler({ params, status, ip }: ContextWithIP) {
   
   if (!params.id) return status(400, {
     error: true, 
@@ -18,14 +20,14 @@ async function linkHandler({ params, status }: Context) {
   
   if (!link) {
     return status(404, {
-      error: true, 
+      error: true,
       message: 'LINK_NOT_FOUND'
     });
   }
   
   if (link?.id) visitLink(link.id);
 
-  logger.info(`access /${link.id} ${JSON.stringify(link, null, 2)}`)
+  logger.info(`access /${link.id} ${JSON.stringify(link, null, 2)} ${ip}`)
 
   return { error: false, ...link };
 }

@@ -108,7 +108,10 @@ export async function visitLink(id: string) {
     data: {
       accessLimit: {
         decrement: 1
-      } 
+      },
+      accesses: {
+        increment: 1
+      }
     },
   })
 

@@ -10,13 +10,18 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",
-    "@prisma/client": "^6.17.1",
+    "@prisma/client": "^6.19.0",
+    "@sapphire/snowflake": "^3.5.5",
+    "bcrypt": "^6.0.0",
     "elysia": "latest",
+    "elysia-ip": "^1.0.10",
+    "jsonwebtoken": "^9.0.2",
     "robots-parser": "^3.0.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "bun-types": "latest",
-    "prisma": "^6.17.1"
+    "prisma": "^6.19.0"
   },
   "module": "src/index.js"
 }
