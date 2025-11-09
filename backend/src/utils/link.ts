@@ -94,8 +94,10 @@ export async function visitLink(id: string) {
 
   const target = await getLink(id);
 
+  if (!target) return null;
+
   // if target.accessLimit was null, that means the target doesn't limit access count
-  if (target?.accessLimit === null) return target;
+  if (target.accessLimit === null) return target;
 
   const updated = await prisma.link.update({
     where: {
@@ -112,8 +114,7 @@ export async function visitLink(id: string) {
     },
   })
 
-  return updated
-
+  return updated;
 }
 
 export async function checkIdAvailability(id: string) {
