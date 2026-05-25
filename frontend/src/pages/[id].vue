@@ -8,7 +8,7 @@ const id = route.params.id?.toString().replace(/\+$/, '');
 const isSuffixPlus = route.params.id?.toString().endsWith('+')
 
 if (!id) throw createError({
-  statusCode: 500,
+  statusCode: 400,
   statusMessage: "id not found",
 })
 
