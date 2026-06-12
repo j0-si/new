@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "j0si-frontend",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,12 +13,12 @@
   "dependencies": {
     "@nuxt/fonts": "0.11.4",
     "@nuxt/icon": "2.0.0",
-    "@tailwindcss/vite": "^4.1.14",
-    "dayjs": "^1.11.18",
-    "nuxt": "^3.21.6",
-    "pinia": "^3.0.3",
-    "tailwindcss": "^4.1.14",
-    "vue": "^3.5.22",
-    "vue-router": "^4.5.1"
+    "@tailwindcss/vite": "^4.3.0",
+    "dayjs": "^1.11.21",
+    "nuxt": "^4.4.8",
+    "pinia": "^3.0.4",
+    "tailwindcss": "^4.3.0",
+    "vue": "^3.5.38",
+    "vue-router": "^4.6.4"
   }
 }
