@@ -4,11 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=production && bun run --env-file=.env.production src/index.ts",
-    "dev": "bun run --watch src/index.ts",
+    "start": "NODE_ENV=production && bun run --env-file=.env src/index.ts",
+    "dev": "bun run --env-file=.env.dev --watch src/index.ts",
     "studio": "prisma studio",
+    "studio:dev": "bun run --env-file=.env.dev prisma studio",
     "db:migrate:dev": "prisma generate && prisma migrate dev",
-    "db:migrate": "prisma generate && prisma migrate deploy"
+    "db:migrate": "prisma generate && prisma migrate deploy",
+    "migrate": "bun run migrate.ts",
+    "migrate:dev": "bun run --env-file=.env.dev migrate.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.0",

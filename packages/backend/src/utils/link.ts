@@ -1,13 +1,24 @@
 import robotsParser from "robots-parser";
 import { prisma } from '../prisma'
 import config from "./config";
+import { randomstr, random } from './random'
+
+export const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*(?<!\+)$/iu
+export interface Link {
+  id: string,
+  url: string,
+  caseSensitive: boolean,
+  idLowercase: string,
+  expiresAt?: Date | null,
+  accessLimit?: number | null,
+}
 
 async function fetchRobots(url: string | URL): Promise<string> {
   const result = await fetch(new URL('/robots.txt', url));
   return await result.text();
 }
 
-const userAgent = process.env.USER_AGENT || "j0.si/1.0"
+const userAgent = process.env.USER_AGENT || "UnnamedUserAgentFromj0.siClone/1.0"
 
 export async function isLinkDead(url: string): Promise<boolean> {
   const robotsTxtDest = new URL('/robots.txt', url);
@@ -44,7 +55,7 @@ export async function isLinkDead(url: string): Promise<boolean> {
   }).catch(() => true)
 }
 
-export async function getLink(id: string, caseSensitive: boolean = true) {
+export async function getLink(id: string, caseSensitive: boolean = false) {
   let result = await prisma.link.findUnique({ where: { id } })
 
   if (!result && !caseSensitive) {
@@ -117,16 +128,84 @@ export async function visitLink(id: string) {
   return updated;
 }
 
-export async function checkIdAvailability(id: string) {
-  const existing = await getLink(id, false);
+export async function checkIdAvailability(id: string, caseSensitive: boolean = true) {
+  const existing = await getLink(id);
 
-  if (existing) return false;
+  if (!existing && caseSensitive) return true;
 
-  const idDuplicate = await prisma.link.findFirst({
-    where: {
-      idLowercase: id.toLowerCase()
-    }
-  })
+  const idDuplicate = await prisma.link.findFirst({ where: {
+    idLowercase: id.toLowerCase()
+  } });
 
   return !idDuplicate;
+}
+
+export async function createLink(params: {
+  url: string,
+  id?: string,
+  caseSensitive?: boolean,
+  expiresAt?: Date,
+  expiresIn?: number,
+  accessLimit?: number,
+}): Promise<{ error: string | false, link?: Link }> {
+  let { id, url, caseSensitive = true, expiresAt, expiresIn, accessLimit } = params;
+
+  // Validate ID format
+  if (id && !idRegex.test(id)) {
+    return { error: "INVALID_ID" }
+  }
+
+  // Validate access limit (max value in 32-bit integer)
+  if (accessLimit && accessLimit > 2147483647) {
+    return { error: "ACCESS_LIMIT_TOO_BIG" }
+  }
+
+  // Parse expiration time
+  let finalExpiresAt: Date | undefined;
+  if (expiresAt) {
+    finalExpiresAt = expiresAt
+  } else if (expiresIn) {
+    finalExpiresAt = new Date(Date.now() + expiresIn)
+  }
+
+  // Check if temporary link is already expired
+  if (finalExpiresAt && finalExpiresAt.getTime() <= Date.now()) {
+    return { error: "LINK_ALREADY_EXPIRED" }
+  }
+
+  // Check if ID is available
+  if (id) {
+    const isIdAvailable = await checkIdAvailability(id, caseSensitive)
+
+    if (!isIdAvailable) {
+      return { error: "ID_ALREADY_TAKEN" };
+    }
+  }
+
+  // Normalize access limit
+  if (accessLimit && accessLimit < 1) accessLimit = undefined;
+
+  // Generate unique ID if not provided
+  if (!id) {
+    caseSensitive = true;
+
+    do {
+      id = randomstr(random(4, 5))
+    } while (!await checkIdAvailability(id, false))
+  }
+
+  // Create data object
+  const data: Link = {
+    id,
+    url,
+    caseSensitive,
+    expiresAt: finalExpiresAt,
+    idLowercase: id.toLowerCase(),
+  };
+
+  if (accessLimit) data.accessLimit = accessLimit;
+
+  const link = await prisma.link.create({ data });
+
+  return { error: false, link };
 }

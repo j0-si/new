@@ -14,7 +14,7 @@ async function linkHandler({ params, status }: Context) {
 
   validateLinks()
   
-  const link = await getLink(params.id, false)
+  const link = await getLink(params.id)
   
   if (!link) {
     return status(404, {

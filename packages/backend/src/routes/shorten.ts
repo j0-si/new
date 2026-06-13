@@ -1,10 +1,6 @@
 import { Elysia } from 'elysia'
-import { prisma } from '../prisma'
-import { randomstr, random } from '../utils/random'
-import { checkIdAvailability, getLink, isLinkDead, validateLinks } from '../utils/link'
+import { createLink, isLinkDead, validateLinks, type Link } from '../utils/link'
 import logger from '../utils/logger'
-
-const idRegex = /^(?!\.)(?=.*[\p{L}\p{Nd}\-_\.]+)(?!.*\.{2,}).*$/iu
 
 const elysia = new Elysia();
 
@@ -15,7 +11,7 @@ elysia.post("/shorten", async ({ body, set }) => {
     let { id, url, caseSensitive, expiresAt: rawExpiresAt, expiresIn, accessLimit } = body as {
       id?: string,
       url: string,
-      caseSensitive: boolean | true,
+      caseSensitive?: boolean,
       expiresAt?: Date | string,
       expiresIn?: number,
       accessLimit?: number,
@@ -25,24 +21,8 @@ elysia.post("/shorten", async ({ body, set }) => {
       return { error: "URL_NOT_PROVIDED" }
     }
 
-    if (id && !idRegex.test(id)) {
-      return { error: "INVALID_ID" }
-    }
-
-    // max value in 32-bit integer
-    if (accessLimit && accessLimit > 2147483647) {
-      return { error: "ACCESS_LIMIT_TOO_MANY" }
-    }
-
-    let expiresAt;
-    if (rawExpiresAt) {
-      expiresAt = new Date(rawExpiresAt)
-    } else if (expiresIn) {
-      expiresAt = new Date(Date.now() + expiresIn)
-    }
-
+    // Validate URL format
     let target;
-
     try {
       target = new URL(url);
     } catch {
@@ -50,71 +30,48 @@ elysia.post("/shorten", async ({ body, set }) => {
       return { error: "INVALID_URL" };
     }
 
-    // restrict to HTTP and HTTPS
+    // Restrict to HTTP and HTTPS
     if (!/https?\:/.test(target.protocol)) {
       set.status = 400
       return { error: "INVALID_PROTOCOL" }
     }
 
-    // if ID was provided check is the ID taken
-    if (id) {
-      const isIdAvailable = await checkIdAvailability(id)
-
-      if ( !isIdAvailable ) {
-        set.status = 409;
-        return { error: "ID_ALREADY_TAKEN" };
-      }
-    }
-
-    // check target is dead link to reduce ID waste
+    // Check if target URL is dead
     if (await isLinkDead(url)) {
       set.status = 400
       return { error: "TARGET_URL_DEAD_OR_DISALLOWED" }
     }
 
-    // make sure requested temporary link is not expired yet
-    if (expiresAt && expiresAt.getTime() <= Date.now()) {
-      set.status = 400
-      return { error: "LINK_ALREADY_EXPIRED" }
+    // Parse expiresAt from string if needed
+    let expiresAt: Date | undefined;
+    if (rawExpiresAt) {
+      expiresAt = new Date(rawExpiresAt)
     }
 
-    if (accessLimit && accessLimit < 1) accessLimit = undefined;
-
-    // generate unique id if id is not provided
-    if (!id) {
-      // force caseSensitive
-      caseSensitive = true;
-
-      do {
-        id = randomstr(random(4, 5))
-      } while ( !await checkIdAvailability(id) )
-    }
-
-    if (!caseSensitive && id) id = id.toLowerCase();
-
-    const data: {
-      id: string,
-      url: string,
-      caseSensitive: boolean,
-      idLowercase: string,
-      expiresAt?: Date | null,
-      accessLimit?: number | null,
-    } = {
-      id,
+    // Create the link with validation
+    const result = await createLink({
       url,
+      id,
       caseSensitive,
       expiresAt,
-      idLowercase: id?.toLowerCase(),
-    };
+      expiresIn,
+      accessLimit,
+    });
 
-    if (expiresAt) data.expiresAt = expiresAt;
-    if (accessLimit) data.accessLimit = accessLimit;
+    if (result.error) {
+      // Map specific errors to HTTP status codes
+      if (result.error === "ID_ALREADY_TAKEN") {
+        set.status = 409;
+      } else if (result.error === "INVALID_ID" || result.error === "LINK_ALREADY_EXPIRED" || result.error === "ACCESS_LIMIT_TOO_BIG") {
+        set.status = 400;
+      }
+      
+      return result;
+    }
 
-    const link = await prisma.link.create({ data });
+    logger.info(`shorten /${result.link?.id} ${JSON.stringify(result, null, 2)}`)
 
-    logger.info(`shorten /${id} ${JSON.stringify(link, null, 2)}`)
-
-    return { error: false, ...link };
+    return result;
   } catch (error) {
     logger.error(error)
 
