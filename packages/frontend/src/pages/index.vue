@@ -60,7 +60,14 @@ async function shorten() {
     expiresData.expiresAt = expiresAtDate
   }
 
-  const link: LinkData = await api('/shorten', {
+  const linkResponse: {
+    error: string | false;
+    detail?: {
+      name: string;
+      message: string;
+    }
+    link?: LinkData | undefined;
+  } = await api('/shorten', {
     method: "POST",
     body: {
       id,
@@ -71,8 +78,42 @@ async function shorten() {
     }
   })
 
+  if (linkResponse.error) {
+    setAlerts([
+      ...alerts.value.slice(-3),  
+      {
+        type: "error",
+        richText: [
+          {
+            text: "Error: " + linkResponse.error
+          },
+        ],
+      }
+    ])
+    
+    return;
+  }
+
+  if (!linkResponse.link) {
+    setAlerts([
+      ...alerts.value.slice(-3),  
+      {
+        type: "error",
+        richText: [
+          {
+            text: "Something went wrong: Link not found in the response"
+          },
+        ],
+      }
+    ])
+    
+    return;
+  }
+
+  const link: LinkData = linkResponse.link;
+
   setAlerts([
-    ...alerts.value,  
+    ...alerts.value.slice(-3),  
     {
       type: "success",
       richText: [
